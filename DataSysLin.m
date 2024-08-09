@@ -18,24 +18,30 @@ H_nd = [h11_nd h12_nd; h21_nd h22_nd];
 
 %% Controladores
 % Controlador por desacoplamento
-[num_tf, dent_f] = tfdata(H_nd);
-num = cell2mat(num_tf);
-inv_num = inv(num(:,[2,4])); 
+
+[num_tf, dent_f] = tfdata(H_nd); % Pega os dados do numerador da matrix de transferência
+num = cell2mat(num_tf);% Conversão de dados
+inv_num = inv(num(:,[2,4])); % Calcula o desacoplador com base no numerador enunciado
+
 
 decoupler = cell(2,2);
-
 for i = 1:2
     for j = 1:2
-        decoupler{i, j} = tf(inv_num(i, j), dent_f{i, j});
+        decoupler{i, j} = tf(dent_f{i, j}, inv_num(i, j));
     end
 end
 
 %% Teste de desacoplamento
 
-decoupled_system = MultiplyMIMO(decoupler, ToCellArray(H_nd));
-decoupled_system = ToTfMatrix(decoupled_system);
+decoupled_system = MultiplyMIMO(decoupler, ToCellArray(H_nd));% Feedforward de compensação de acoplamento
+decoupled_system = ToTfMatrix(decoupled_system); 
+
 step(decoupled_system)
-function result = MultiplyMIMO(A, B)
+hold on 
+step(H_nd)
+
+%% Funções auxiliares - feito com suporte do ChatPGT
+function result = MultiplyMIMO(A, B) % Multiplica duas matrizes de tranferência
     [m, n] = size(A);
     [~, q] = size(B);
     result = cell(m, q);
@@ -50,10 +56,9 @@ function result = MultiplyMIMO(A, B)
     end
 end
 
-function cell_array = ToCellArray(M)
+function cell_array = ToCellArray(M) % Converte uma matriz de tranferência para um cell tf
     [m, n] = size(M);
     cell_array = cell(m, n);
-
     for i = 1:m
         for j = 1:n
             cell_array{i, j} = M(i, j);
@@ -61,7 +66,7 @@ function cell_array = ToCellArray(M)
     end
 end
 
-function tf_matrix = ToTfMatrix(cell_array)
+function tf_matrix = ToTfMatrix(cell_array) % Converte um cell tf para uma  matriz de tranferência  
     [m, n] = size(cell_array);
     for i = 1:m
         for j = 1:n
