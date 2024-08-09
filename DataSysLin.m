@@ -31,11 +31,12 @@ for i = 1:2
     end
 end
 
-%% Teste de desacoplamento
+%% Sistema desacoplado
 
 decoupled_system = MultiplyMIMO(decoupler, ToCellArray(H_nd));% Feedforward de compensação de acoplamento
 decoupled_system = ToTfMatrix(decoupled_system); 
 
+%% Testes
 step(decoupled_system)
 hold on 
 step(H_nd)
