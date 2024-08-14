@@ -1,4 +1,5 @@
 s = tf('s');
+
 %% Dados do sistema
 % Sistema linearizado
 h11 = -0.1806*exp(-89.5*s)/(150*s + 1);
